@@ -1,5 +1,6 @@
-import Image from "next/image";
+import { useState, useEffect } from 'react';
 import { Geist, Geist_Mono } from "next/font/google";
+import AIAnalytics from '../components/AIAnalytics';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,104 +12,298 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// AI Waste Monitor Components
+const WasteIndicator = ({ level, label, value, max = 100 }) => {
+  const percentage = (value / max) * 100;
+  const getColor = () => {
+    if (percentage < 30) return 'bg-green-500';
+    if (percentage < 70) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-sm font-medium text-white/80">{label}</span>
+        <span className="text-sm font-bold text-white">{value}</span>
+      </div>
+      <div className="w-full bg-gray-700 rounded-full h-2">
+        <div 
+          className={`h-2 rounded-full transition-all duration-500 ${getColor()}`}
+          style={{ width: `${Math.min(percentage, 100)}%` }}
+        />
+      </div>
+    </div>
+  );
+};
+
+const AITokenTracker = () => {
+  const [metrics, setMetrics] = useState({
+    totalTokens: 0,
+    wastedTokens: 0,
+    repeatedPrompts: 0,
+    efficiency: 85,
+    costSavings: 0
+  });
+
+  const [recentActivity, setRecentActivity] = useState([]);
+
+  useEffect(() => {
+    // Simulate real-time data updates
+    const interval = setInterval(() => {
+      setMetrics(prev => ({
+        totalTokens: prev.totalTokens + Math.floor(Math.random() * 1000),
+        wastedTokens: prev.wastedTokens + Math.floor(Math.random() * 50),
+        repeatedPrompts: prev.repeatedPrompts + Math.floor(Math.random() * 3),
+        efficiency: Math.max(60, prev.efficiency + (Math.random() - 0.5) * 5),
+        costSavings: prev.costSavings + Math.floor(Math.random() * 10)
+      }));
+
+      // Add new activity
+      const activities = [
+        "Detected redundant prompt pattern",
+        "Optimized token usage by 15%",
+        "Identified wasteful API call",
+        "Learned new efficiency pattern",
+        "Prevented duplicate request"
+      ];
+      
+      setRecentActivity(prev => [
+        {
+          id: Date.now(),
+          message: activities[Math.floor(Math.random() * activities.length)],
+          timestamp: new Date(),
+          type: Math.random() > 0.5 ? 'optimization' : 'detection'
+        },
+        ...prev.slice(0, 9)
+      ]);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <WasteIndicator 
+          label="Total Tokens" 
+          value={metrics.totalTokens.toLocaleString()} 
+          max={100000}
+        />
+        <WasteIndicator 
+          label="Wasted Tokens" 
+          value={metrics.wastedTokens.toLocaleString()} 
+          max={10000}
+        />
+        <WasteIndicator 
+          label="Efficiency %" 
+          value={`${metrics.efficiency.toFixed(1)}%`} 
+          max={100}
+        />
+        <WasteIndicator 
+          label="Cost Savings" 
+          value={`$${metrics.costSavings}`} 
+          max={1000}
+        />
+      </div>
+
+      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+        <h3 className="text-lg font-semibold text-white mb-4">Real-time AI Activity</h3>
+        <div className="space-y-3 max-h-64 overflow-y-auto">
+          {recentActivity.map((activity) => (
+            <div 
+              key={activity.id}
+              className={`flex items-center space-x-3 p-3 rounded-lg ${
+                activity.type === 'optimization' 
+                  ? 'bg-green-500/20 border border-green-500/30' 
+                  : 'bg-blue-500/20 border border-blue-500/30'
+              }`}
+            >
+              <div className={`w-2 h-2 rounded-full ${
+                activity.type === 'optimization' ? 'bg-green-400' : 'bg-blue-400'
+              }`} />
+              <div className="flex-1">
+                <p className="text-sm text-white">{activity.message}</p>
+                <p className="text-xs text-white/60">
+                  {activity.timestamp.toLocaleTimeString()}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const LearningInsights = () => {
+  const [insights, setInsights] = useState([
+    {
+      title: "Pattern Recognition",
+      description: "AI has learned to identify 15 common wasteful prompt patterns",
+      confidence: 94,
+      impact: "High"
+    },
+    {
+      title: "Token Optimization",
+      description: "Automatically suggests shorter, more efficient prompts",
+      confidence: 87,
+      impact: "Medium"
+    },
+    {
+      title: "Duplicate Detection",
+      description: "Prevents repeated API calls with 98% accuracy",
+      confidence: 98,
+      impact: "High"
+    }
+  ]);
+
+  return (
+    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+      <h3 className="text-lg font-semibold text-white mb-4">AI Learning Insights</h3>
+      <div className="space-y-4">
+        {insights.map((insight, index) => (
+          <div key={index} className="bg-white/5 rounded-lg p-4">
+            <div className="flex justify-between items-start mb-2">
+              <h4 className="font-medium text-white">{insight.title}</h4>
+              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                insight.impact === 'High' ? 'bg-red-500/20 text-red-300' :
+                insight.impact === 'Medium' ? 'bg-yellow-500/20 text-yellow-300' :
+                'bg-green-500/20 text-green-300'
+              }`}>
+                {insight.impact}
+              </span>
+            </div>
+            <p className="text-sm text-white/80 mb-2">{insight.description}</p>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-white/60">Confidence:</span>
+              <div className="flex-1 bg-gray-700 rounded-full h-1.5">
+                <div 
+                  className="bg-blue-400 h-1.5 rounded-full transition-all duration-500"
+                  style={{ width: `${insight.confidence}%` }}
+                />
+              </div>
+              <span className="text-xs text-white/60">{insight.confidence}%</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default function Home() {
+  const [activeTab, setActiveTab] = useState('monitor');
+
   return (
     <div
-      className={`${geistSans.className} ${geistMono.className} font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20`}
+      className={`${geistSans.className} ${geistMono.className} font-sans min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white`}
     >
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Hi HI  hi by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              pages/index.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Header */}
+      <header className="border-b border-white/20 bg-white/5 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">AI</span>
+              </div>
+              <h1 className="text-xl font-bold">AI Waste Monitor</h1>
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setActiveTab('monitor')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'monitor' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Monitor
+              </button>
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'analytics' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Analytics
+              </button>
+              <button
+                onClick={() => setActiveTab('insights')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'insights' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Insights
+              </button>
+            </div>
+          </div>
         </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {activeTab === 'monitor' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">AI Waste Monitoring Dashboard</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Real-time monitoring of AI token usage, waste detection, and optimization opportunities
+              </p>
+            </div>
+            <AITokenTracker />
+          </div>
+        )}
+
+        {activeTab === 'analytics' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">Advanced AI Analytics</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Deep insights into AI usage patterns, waste detection, and optimization opportunities
+              </p>
+            </div>
+            <AIAnalytics />
+          </div>
+        )}
+
+        {activeTab === 'insights' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">AI Learning & Insights</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Discover how our AI learns from patterns and grows smarter with every interaction
+              </p>
+            </div>
+            <LearningInsights />
+          </div>
+        )}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* Footer */}
+      <footer className="border-t border-white/20 bg-white/5 backdrop-blur-sm mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="text-white/60 text-sm">
+              Powered by SAP BTP • Sustainable AI Future
+            </div>
+            <div className="flex space-x-6 text-sm">
+              <a href="#" className="text-white/60 hover:text-white transition-colors">
+                Documentation
+              </a>
+              <a href="#" className="text-white/60 hover:text-white transition-colors">
+                API
+              </a>
+              <a href="#" className="text-white/60 hover:text-white transition-colors">
+                Support
+              </a>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
