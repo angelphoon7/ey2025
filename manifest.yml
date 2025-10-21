@@ -1,0 +1,9 @@
+---
+applications:
+  - name: my-next-app
+    memory: 512M
+    instances: 1
+    buildpacks:
+      - nodejs_buildpack
+    command: npm start
+    path: .
