@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Geist, Geist_Mono } from "next/font/google";
 import AIAnalytics from '../components/AIAnalytics';
+import RedundancyRateIndicator from '../components/RedundancyRateIndicator';
+import OutputReuseRateIndicator from '../components/OutputReuseRateIndicator';
+import RefinementLoopsIndicator from '../components/RefinementLoopsIndicator';
+import OutputExcessRatioIndicator from '../components/OutputExcessRatioIndicator';
+import AbandonmentRateIndicator from '../components/AbandonmentRateIndicator';
+import LatencyPerformanceIndicator from '../components/LatencyPerformanceIndicator';
+import OverallEfficiencyScoreIndicator from '../components/OverallEfficiencyScoreIndicator';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,9 +23,9 @@ const geistMono = Geist_Mono({
 const WasteIndicator = ({ level, label, value, max = 100 }) => {
   const percentage = (value / max) * 100;
   const getColor = () => {
-    if (percentage < 30) return 'bg-green-500';
-    if (percentage < 70) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (percentage < 20) return 'bg-green-500';  // Efficient: < 20%
+    if (percentage < 35) return 'bg-yellow-500'; // Moderate: 20-35%
+    return 'bg-red-500'; // Waste: > 35%
   };
 
   return (
@@ -104,6 +111,16 @@ const AITokenTracker = () => {
           label="Cost Savings" 
           value={`$${metrics.costSavings}`} 
           max={1000}
+        />
+      </div>
+
+      {/* Redundancy Rate Indicator */}
+      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+        <h3 className="text-lg font-semibold text-white mb-4">Prompt Redundancy Analysis</h3>
+        <RedundancyRateIndicator 
+          similarityThreshold={0.7}
+          timeWindow={3600000}
+          sessionId="main-session"
         />
       </div>
 
@@ -240,6 +257,76 @@ export default function Home() {
               >
                 Insights
               </button>
+              <button
+                onClick={() => setActiveTab('redundancy')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'redundancy' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Redundancy
+              </button>
+              <button
+                onClick={() => setActiveTab('utility')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'utility' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Utility
+              </button>
+              <button
+                onClick={() => setActiveTab('refinement')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'refinement' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Refinement
+              </button>
+              <button
+                onClick={() => setActiveTab('excess')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'excess' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Excess
+              </button>
+              <button
+                onClick={() => setActiveTab('abandonment')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'abandonment' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Abandonment
+              </button>
+              <button
+                onClick={() => setActiveTab('latency')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'latency' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Latency
+              </button>
+              <button
+                onClick={() => setActiveTab('efficiency')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === 'efficiency' 
+                    ? 'bg-white/20 text-white' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Efficiency
+              </button>
             </div>
           </div>
         </div>
@@ -280,6 +367,115 @@ export default function Home() {
               </p>
             </div>
             <LearningInsights />
+          </div>
+        )}
+
+        {activeTab === 'redundancy' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">Prompt Redundancy Analysis</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Monitor and analyze prompt similarity patterns to identify waste and optimization opportunities
+              </p>
+            </div>
+            <RedundancyRateIndicator 
+              similarityThreshold={0.7}
+              timeWindow={3600000}
+              sessionId="main-session"
+            />
+          </div>
+        )}
+
+        {activeTab === 'utility' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">Output Reuse Rate (Utility)</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Track how often AI outputs are reused to measure utility and identify valuable content
+              </p>
+            </div>
+            <OutputReuseRateIndicator 
+              similarityThreshold={0.8}
+              timeWindow={3600000}
+              sessionId="main-session"
+            />
+          </div>
+        )}
+
+        {activeTab === 'refinement' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">Refinement Loops Analysis</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Monitor back-and-forth interactions to identify when users struggle to get satisfactory AI responses
+              </p>
+            </div>
+            <RefinementLoopsIndicator 
+              topicSimilarityThreshold={0.6}
+              timeWindow={3600000}
+              sessionId="main-session"
+            />
+          </div>
+        )}
+
+        {activeTab === 'excess' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">Output Excess Ratio Analysis</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Monitor output size efficiency to identify when AI responses are unnecessarily verbose or too brief
+              </p>
+            </div>
+            <OutputExcessRatioIndicator 
+              timeWindow={3600000}
+              sessionId="main-session"
+            />
+          </div>
+        )}
+
+        {activeTab === 'abandonment' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">Output Abandonment Rate Analysis</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Monitor user engagement to identify when AI outputs are ignored or abandoned by users
+              </p>
+            </div>
+            <AbandonmentRateIndicator 
+              abandonmentTimeout={300000}
+              timeWindow={3600000}
+              sessionId="main-session"
+            />
+          </div>
+        )}
+
+        {activeTab === 'latency' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">Latency Performance Analysis</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Monitor response times relative to prompt complexity to identify performance bottlenecks
+              </p>
+            </div>
+            <LatencyPerformanceIndicator 
+              timeWindow={3600000}
+              sessionId="main-session"
+            />
+          </div>
+        )}
+
+        {activeTab === 'efficiency' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">Overall Efficiency Score</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Comprehensive efficiency assessment combining all waste indicators into a single weighted score
+              </p>
+            </div>
+            <OverallEfficiencyScoreIndicator 
+              timeWindow={3600000}
+              sessionId="main-session"
+            />
           </div>
         )}
       </main>

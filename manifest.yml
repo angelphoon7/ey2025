@@ -7,3 +7,5 @@ applications:
       - nodejs_buildpack
     command: npm start
     path: .
+    routes:
+      - route: whasap.cfapps.us10-001.hana.ondemand.com
