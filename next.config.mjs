@@ -9,8 +9,6 @@ const nextConfig = {
   },
   // Ensure proper static generation
   trailingSlash: false,
-  // Set output file tracing root to fix lockfile warning
-  outputFileTracingRoot: '/Users/angelphoon/Documents/ey20255',
 };
 
 export default nextConfig;
