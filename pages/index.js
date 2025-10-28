@@ -8,8 +8,10 @@ import AIAnalytics from '../components/AIAnalytics';
 // import OutputExcessRatioIndicator from '../components/OutputExcessRatioIndicator';
 // import AbandonmentRateIndicator from '../components/AbandonmentRateIndicator';
 // import LatencyPerformanceIndicator from '../components/LatencyPerformanceIndicator';
-import OverallEfficiencyScoreIndicator from '../components/OverallEfficiencyScoreIndicator';
+// import OverallEfficiencyScoreIndicator from '../components/OverallEfficiencyScoreIndicator';
 import RealTimeAnalysis from '../components/RealTimeAnalysis';
+import AwarenessDashboard from '../components/AwarenessDashboard';
+import SustainabilityTable from '../components/SustainabilityTable';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -241,18 +243,19 @@ export default function Home() {
               >
                 Analytics
               </button>
-              
-              {/* Removed tabs: Redundancy, Utility, Refinement, Excess, Abandonment, Latency */}
               <button
-                onClick={() => setActiveTab('efficiency')}
+                onClick={() => setActiveTab('summary')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  activeTab === 'efficiency' 
+                  activeTab === 'summary' 
                     ? 'bg-white/20 text-white' 
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
-                Efficiency
+                Summary
               </button>
+              
+              {/* Removed tabs: Redundancy, Utility, Refinement, Excess, Abandonment, Latency */}
+              {/* Efficiency tab removed per request */}
               
             </div>
           </div>
@@ -291,23 +294,45 @@ export default function Home() {
           </div>
         )}
 
+        {activeTab === 'summary' && (
+          <div className="space-y-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold mb-4">Executive Summary</h2>
+              <p className="text-white/80 text-lg max-w-2xl mx-auto">
+                Weekly awareness, impact equivalents, compute score, think mode stats, achievements and challenge
+              </p>
+            </div>
+            {/* Export PDF button */}
+            <div className="flex justify-end">
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors"
+              >
+                Export PDF
+              </button>
+            </div>
+
+            {/* Printable area */}
+            <div id="summary-report" className="space-y-8">
+              <AwarenessDashboard />
+              <SustainabilityTable />
+            </div>
+
+            {/* Print styles: show only summary-report when printing */}
+            <style jsx global>{`
+              @media print {
+                body * { visibility: hidden; }
+                #summary-report, #summary-report * { visibility: visible; }
+                #summary-report { position: absolute; left: 0; top: 0; width: 100%; }
+              }
+            `}</style>
+          </div>
+        )}
+
 
         {/* Removed tab contents: Redundancy, Utility, Refinement, Excess, Abandonment, Latency */}
 
-        {activeTab === 'efficiency' && (
-          <div className="space-y-8">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold mb-4">Overall Efficiency Score</h2>
-              <p className="text-white/80 text-lg max-w-2xl mx-auto">
-                Comprehensive efficiency assessment combining all waste indicators into a single weighted score
-              </p>
-            </div>
-            <OverallEfficiencyScoreIndicator 
-              timeWindow={3600000}
-              sessionId="main-session"
-            />
-          </div>
-        )}
+        {/* Efficiency view removed per request */}
 
         
       </main>

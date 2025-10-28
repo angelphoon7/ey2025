@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 export const AIAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showFullReport, setShowFullReport] = useState(false);
 
   useEffect(() => {
     fetchAnalytics();
@@ -186,6 +187,26 @@ export const AIAnalytics = () => {
         />
       </div>
 
+      {/* Full Report Toggle */}
+      <div className="flex justify-end space-x-2">
+        {showFullReport && (
+          <button
+            onClick={() => window.print()}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors"
+          >
+            Export Report PDF
+          </button>
+        )}
+        <button
+          onClick={() => setShowFullReport(!showFullReport)}
+          className="px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors"
+        >
+          {showFullReport ? 'Hide Full Report' : 'View Full Report'}
+        </button>
+      </div>
+
+      {showFullReport && (
+        <div id="analytics-full-report" className="space-y-6">
       {/* Waste Patterns */}
       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
         <h3 className="text-lg font-semibold text-white mb-4">Waste Patterns Detected</h3>
@@ -573,6 +594,16 @@ export const AIAnalytics = () => {
             </div>
           </div>
         </div>
+      )}
+      {/* Print styles: only print the analytics report when printing */}
+      <style jsx global>{`
+        @media print {
+          body * { visibility: hidden; }
+          #analytics-full-report, #analytics-full-report * { visibility: visible; }
+          #analytics-full-report { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+      `}</style>
+      </div>
       )}
 
       {/* Learning Progress */}
