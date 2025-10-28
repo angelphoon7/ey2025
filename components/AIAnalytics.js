@@ -207,6 +207,51 @@ export const AIAnalytics = () => {
 
       {showFullReport && (
         <div id="analytics-full-report" className="space-y-6">
+          {/* Print-only condensed analytics table */}
+          <div className="hidden print:block">
+            <h3 className="text-lg font-semibold mb-3">AI Analytics Report</h3>
+            <table className="min-w-full text-sm border-collapse" style={{ width: '100%' }}>
+              <thead>
+                <tr>
+                  <th style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'left' }}>Metric</th>
+                  <th style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'left' }}>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Redundancy Rate</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{((analytics.metrics.redundancyRate || 0) * 100).toFixed(1)}%</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Output Reuse Rate</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{((analytics.metrics.outputReuseRate || 0) * 100).toFixed(1)}%</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Avg Refinement Loops</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{analytics.metrics.avgRefinementLoops}</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Avg Excess Ratio</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{analytics.metrics.avgExcessRatio}x</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Abandonment Rate</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{((analytics.metrics.abandonmentRate || 0) * 100).toFixed(1)}%</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Avg Latency per Token</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{analytics.metrics.avgLatencyPerToken} ms/token</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Overall Efficiency Score</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{((analytics.metrics.overallEfficiencyScore || 0) * 100).toFixed(1)}% ({analytics.metrics.efficiencyLevel})</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Screen-only detailed sections */}
+          <div className="screen-only space-y-6">
       {/* Waste Patterns */}
       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
         <h3 className="text-lg font-semibold text-white mb-4">Waste Patterns Detected</h3>
@@ -595,12 +640,14 @@ export const AIAnalytics = () => {
           </div>
         </div>
       )}
-      {/* Print styles: only print the analytics report when printing */}
+      </div>
+      {/* Print styles: only print the analytics table; hide detailed sections */}
       <style jsx global>{`
         @media print {
           body * { visibility: hidden; }
           #analytics-full-report, #analytics-full-report * { visibility: visible; }
           #analytics-full-report { position: absolute; left: 0; top: 0; width: 100%; }
+          #analytics-full-report .screen-only { display: none !important; }
         }
       `}</style>
       </div>
