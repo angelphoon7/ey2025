@@ -11,7 +11,7 @@ import AIAnalytics from '../components/AIAnalytics';
 // import OverallEfficiencyScoreIndicator from '../components/OverallEfficiencyScoreIndicator';
 import RealTimeAnalysis from '../components/RealTimeAnalysis';
 import AwarenessDashboard from '../components/AwarenessDashboard';
-import SustainabilityTable from '../components/SustainabilityTable';
+// import SustainabilityTable from '../components/SustainabilityTable';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -315,7 +315,6 @@ export default function Home() {
             {/* Printable area */}
             <div id="summary-report" className="space-y-8">
               <AwarenessDashboard />
-              <SustainabilityTable />
             </div>
 
             {/* Print styles: show only summary-report when printing */}

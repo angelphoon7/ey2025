@@ -20,12 +20,10 @@ export default function AwarenessDashboard() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    const load = async () => {
+    const loadOnce = async () => {
       try {
-        // Fetch base mock metrics
         const baseRes = await fetch('/api/ai-monitor');
         const base = await baseRes.json();
-        // Fetch Kaggle aggregates and override key fields for awareness meter
         const susRes = await fetch('/api/sustainability');
         const sus = await susRes.json();
         const merged = {
@@ -37,14 +35,18 @@ export default function AwarenessDashboard() {
             waterL: sus.aggregates?.waterL || base.awareness.week.waterL
           }
         };
-        setData(merged);
+        // Freeze values for this session
+        const frozen = {
+          ...merged,
+          computeSmartScore: Math.round(merged.computeSmartScore),
+          computeSmartPercentile: merged.computeSmartPercentile
+        };
+        setData(frozen);
       } catch (e) {
         console.error('Failed to load awareness metrics', e);
       }
     };
-    load();
-    const t = setInterval(load, 10000);
-    return () => clearInterval(t);
+    loadOnce();
   }, []);
 
   if (!data) {
