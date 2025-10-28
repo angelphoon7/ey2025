@@ -32,6 +32,54 @@ export const AIAnalytics = () => {
 
   return (
     <div className="space-y-6">
+      {/* Executive Summary */}
+      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+        <h3 className="text-lg font-semibold text-white mb-6 flex items-center space-x-2">
+          <span className="text-xl">🌐</span>
+          <span>Executive Summary</span>
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <div>
+              <div className="text-5xl font-extrabold text-white">
+                {analytics.metrics.aiQueriesToday?.toLocaleString?.() || analytics.metrics.aiQueriesToday}
+              </div>
+              <div className="text-white/70 mt-1">AI Queries Today</div>
+            </div>
+            <div>
+              <div className="text-4xl font-extrabold text-white">
+                {analytics.metrics.co2PreventedKg} kg
+              </div>
+              <div className="text-white/70 mt-1">CO Prevented</div>
+            </div>
+            <div>
+              <div className="text-4xl font-extrabold text-white flex items-baseline space-x-2">
+                <span>{analytics.metrics.computeScore}</span>
+                {typeof analytics.metrics.computeScoreDelta === 'number' && (
+                  <span className={`text-sm font-semibold ${analytics.metrics.computeScoreDelta >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                    {analytics.metrics.computeScoreDelta >= 0 ? '+' : ''}{analytics.metrics.computeScoreDelta}
+                  </span>
+                )}
+              </div>
+              <div className="text-white/70 mt-1">Compute Score</div>
+            </div>
+          </div>
+          <div className="space-y-6">
+            <div>
+              <div className="text-5xl font-extrabold text-white">
+                {analytics.metrics.energySavedKWh} kWh
+              </div>
+              <div className="text-white/70 mt-1">Energy Saved</div>
+            </div>
+            <div>
+              <div className="text-5xl font-extrabold text-white">
+                {analytics.metrics.waterSavedL}L
+              </div>
+              <div className="text-white/70 mt-1">Water Saved</div>
+            </div>
+          </div>
+        </div>
+      </div>
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <MetricCard

@@ -13,6 +13,13 @@ export default function handler(req, res) {
         efficiency: Math.floor(Math.random() * 30) + 70,
         costSavings: Math.floor(Math.random() * 500) + 100,
         carbonFootprint: Math.floor(Math.random() * 100) + 20,
+        // Executive Summary metrics
+        aiQueriesToday: Math.floor(Math.random() * 15000) + 3000,
+        energySavedKWh: Math.floor(Math.random() * 400) + 50,
+        waterSavedL: Math.floor(Math.random() * 4000) + 500,
+        co2PreventedKg: Math.floor(Math.random() * 220) + 40,
+        computeScore: Math.floor(Math.random() * 100),
+        computeScoreDelta: Math.floor(Math.random() * 20) - 5,
         redundancyRate: (Math.random() * 0.5 + 0.05).toFixed(3), // 5-55% redundancy (focused on 0-35% range)
         similarPrompts: Math.floor(Math.random() * 25) + 5,
         totalPrompts: Math.floor(Math.random() * 100) + 50,
