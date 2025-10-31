@@ -9,6 +9,7 @@ const nextConfig = {
   },
   // Ensure proper static generation
   trailingSlash: false,
+  // Set output file tracing root to fix lockfile warning
 };
 
 export default nextConfig;

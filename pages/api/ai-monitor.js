@@ -13,6 +13,13 @@ export default function handler(req, res) {
         efficiency: Math.floor(Math.random() * 30) + 70,
         costSavings: Math.floor(Math.random() * 500) + 100,
         carbonFootprint: Math.floor(Math.random() * 100) + 20,
+        // Executive Summary metrics
+        aiQueriesToday: Math.floor(Math.random() * 15000) + 3000,
+        energySavedKWh: Math.floor(Math.random() * 400) + 50,
+        waterSavedL: Math.floor(Math.random() * 4000) + 500,
+        co2PreventedKg: Math.floor(Math.random() * 220) + 40,
+        computeScore: Math.floor(Math.random() * 100),
+        computeScoreDelta: Math.floor(Math.random() * 20) - 5,
         redundancyRate: (Math.random() * 0.5 + 0.05).toFixed(3), // 5-55% redundancy (focused on 0-35% range)
         similarPrompts: Math.floor(Math.random() * 25) + 5,
         totalPrompts: Math.floor(Math.random() * 100) + 50,
@@ -366,6 +373,48 @@ export default function handler(req, res) {
             suggestion: 'Optimize prompt clarity',
             impact: 'Could improve efficiency by 2-3%'
           }
+        ]
+      }
+      ,
+      awareness: {
+        week: {
+          aiQueries: Math.floor(Math.random() * 200) + 40,
+          co2Kg: (Math.random() * 6 + 1).toFixed(1),
+          energyKWh: (Math.random() * 7 + 2).toFixed(1),
+          waterL: Math.floor(Math.random() * 1200) + 300
+        },
+        equivalents: {
+          drivingKm: Math.floor(Math.random() * 30) + 5,
+          toiletFlushes: Math.floor(Math.random() * 80) + 20,
+          roomLightingHrs: Math.floor(Math.random() * 40) + 10
+        },
+        computeSmartScore: Math.floor(Math.random() * 41) + 60, // 60-100
+        computeSmartPercentile: 35,
+        thinkMode: {
+          pauses: Math.floor(Math.random() * 40) + 5,
+          avgThinkSeconds: Math.floor(Math.random() * 25) + 8,
+          refinedQueries: Math.floor(Math.random() * 20) + 5,
+          savedCo2g: Math.floor(Math.random() * 1500) + 300
+        },
+        achievements: [
+          { id: 1, title: 'Eco Warrior', desc: 'Used Think Mode 20+ times' },
+          { id: 2, title: 'Think First', desc: 'Refined 10+ queries' }
+        ],
+        learningChallenge: {
+          text: 'Calculate the ROI of a marketing campaign with RM 10,000 spend and RM 45,000 revenue.'
+        },
+        batteries: [
+          { id: 1, label: 'Prompt Efficiency', value: Math.floor(Math.random() * 20) + 75 },
+          { id: 2, label: 'Model Right-Sizing', value: Math.floor(Math.random() * 5) + 93 },
+          { id: 3, label: 'Data Pipeline', value: Math.floor(Math.random() * 25) + 60 },
+          { id: 4, label: 'Carbon Index', value: Math.floor(Math.random() * 15) + 80 }
+        ],
+        departmentLeaderboard: [
+          { id: 1, name: 'Engineering', members: 45, score: 92, trend: 'up' },
+          { id: 2, name: 'Marketing', members: 23, score: 78, trend: 'up' },
+          { id: 3, name: 'Sales', members: 34, score: 71, trend: 'down' },
+          { id: 4, name: 'Finance', members: 18, score: 85, trend: 'up' },
+          { id: 5, name: 'HR', members: 12, score: 68, trend: 'up' }
         ]
       }
     };

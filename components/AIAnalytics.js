@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 export const AIAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showFullReport, setShowFullReport] = useState(false);
 
   useEffect(() => {
     fetchAnalytics();
@@ -32,6 +33,54 @@ export const AIAnalytics = () => {
 
   return (
     <div className="space-y-6">
+      {/* Executive Summary */}
+      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
+        <h3 className="text-lg font-semibold text-white mb-6 flex items-center space-x-2">
+          <span className="text-xl">🌐</span>
+          <span>Executive Summary</span>
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <div>
+              <div className="text-5xl font-extrabold text-white">
+                {analytics.metrics.aiQueriesToday?.toLocaleString?.() || analytics.metrics.aiQueriesToday}
+              </div>
+              <div className="text-white/70 mt-1">AI Queries Today</div>
+            </div>
+            <div>
+              <div className="text-4xl font-extrabold text-white">
+                {analytics.metrics.co2PreventedKg} kg
+              </div>
+              <div className="text-white/70 mt-1">CO Prevented</div>
+            </div>
+            <div>
+              <div className="text-4xl font-extrabold text-white flex items-baseline space-x-2">
+                <span>{analytics.metrics.computeScore}</span>
+                {typeof analytics.metrics.computeScoreDelta === 'number' && (
+                  <span className={`text-sm font-semibold ${analytics.metrics.computeScoreDelta >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                    {analytics.metrics.computeScoreDelta >= 0 ? '+' : ''}{analytics.metrics.computeScoreDelta}
+                  </span>
+                )}
+              </div>
+              <div className="text-white/70 mt-1">Compute Score</div>
+            </div>
+          </div>
+          <div className="space-y-6">
+            <div>
+              <div className="text-5xl font-extrabold text-white">
+                {analytics.metrics.energySavedKWh} kWh
+              </div>
+              <div className="text-white/70 mt-1">Energy Saved</div>
+            </div>
+            <div>
+              <div className="text-5xl font-extrabold text-white">
+                {analytics.metrics.waterSavedL}L
+              </div>
+              <div className="text-white/70 mt-1">Water Saved</div>
+            </div>
+          </div>
+        </div>
+      </div>
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <MetricCard
@@ -138,6 +187,71 @@ export const AIAnalytics = () => {
         />
       </div>
 
+      {/* Full Report Toggle */}
+      <div className="flex justify-end space-x-2">
+        {showFullReport && (
+          <button
+            onClick={() => window.print()}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors"
+          >
+            Export Report PDF
+          </button>
+        )}
+        <button
+          onClick={() => setShowFullReport(!showFullReport)}
+          className="px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors"
+        >
+          {showFullReport ? 'Hide Full Report' : 'View Full Report'}
+        </button>
+      </div>
+
+      {showFullReport && (
+        <div id="analytics-full-report" className="space-y-6">
+          {/* Print-only condensed analytics table */}
+          <div className="hidden print:block">
+            <h3 className="text-lg font-semibold mb-3">AI Analytics Report</h3>
+            <table className="min-w-full text-sm border-collapse" style={{ width: '100%' }}>
+              <thead>
+                <tr>
+                  <th style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'left' }}>Metric</th>
+                  <th style={{ border: '1px solid #ccc', padding: '6px', textAlign: 'left' }}>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Redundancy Rate</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{((analytics.metrics.redundancyRate || 0) * 100).toFixed(1)}%</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Output Reuse Rate</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{((analytics.metrics.outputReuseRate || 0) * 100).toFixed(1)}%</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Avg Refinement Loops</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{analytics.metrics.avgRefinementLoops}</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Avg Excess Ratio</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{analytics.metrics.avgExcessRatio}x</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Abandonment Rate</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{((analytics.metrics.abandonmentRate || 0) * 100).toFixed(1)}%</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Avg Latency per Token</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{analytics.metrics.avgLatencyPerToken} ms/token</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>Overall Efficiency Score</td>
+                  <td style={{ border: '1px solid #ccc', padding: '6px' }}>{((analytics.metrics.overallEfficiencyScore || 0) * 100).toFixed(1)}% ({analytics.metrics.efficiencyLevel})</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Screen-only detailed sections */}
+          <div className="screen-only space-y-6">
       {/* Waste Patterns */}
       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
         <h3 className="text-lg font-semibold text-white mb-4">Waste Patterns Detected</h3>
@@ -525,6 +639,18 @@ export const AIAnalytics = () => {
             </div>
           </div>
         </div>
+      )}
+      </div>
+      {/* Print styles: only print the analytics table; hide detailed sections */}
+      <style jsx global>{`
+        @media print {
+          body * { visibility: hidden; }
+          #analytics-full-report, #analytics-full-report * { visibility: visible; }
+          #analytics-full-report { position: absolute; left: 0; top: 0; width: 100%; }
+          #analytics-full-report .screen-only { display: none !important; }
+        }
+      `}</style>
+      </div>
       )}
 
       {/* Learning Progress */}
