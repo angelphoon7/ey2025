@@ -5,7 +5,7 @@ applications:
     instances: 1
     buildpacks:
       - nodejs_buildpack
-    command: npm start
+    command: bash -lc 'npm run build && npm start'
     path: .
     routes:
       - route: whasap.cfapps.us10-001.hana.ondemand.com
