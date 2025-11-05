@@ -57,6 +57,11 @@ export default function AwarenessDashboard() {
     );
   }
 
+  // Calculate trees to plant based on CO2 generated
+  // Average tree absorbs ~21.77 kg CO2 per year or ~60 kg over its lifetime
+  // For offsetting purposes, we'll use ~20 kg CO2 per tree as a conservative estimate
+  const treesToPlant = Math.ceil(data.week.co2Kg / 20);
+
   return (
     <div className="space-y-6">
       {/* Efficiency Batteries */}
@@ -92,6 +97,25 @@ export default function AwarenessDashboard() {
           <StatTile label="CO  Generated" value={`${data.week.co2Kg} kg`} />
           <StatTile label="Energy Used" value={`${data.week.energyKWh} kWh`} />
           <StatTile label="Water Used" value={`${data.week.waterL}L`} />
+        </div>
+      </div>
+
+      {/* Carbon Offset with Tree Planting */}
+      <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 rounded-xl p-6 border border-white/20 text-white">
+        <h4 className="text-lg font-semibold flex items-center space-x-2 mb-2">
+          <span>🌳</span>
+          <span>Offset Your Carbon Footprint</span>
+        </h4>
+        <p className="text-white/90 mb-4">Plant trees to neutralize your AI-generated CO₂ emissions</p>
+        <div className="bg-white/20 rounded-lg p-4">
+          <div className="text-4xl font-extrabold mb-2">{treesToPlant} trees</div>
+          <div className="text-white/80 text-sm mb-3">needed to offset {data.week.co2Kg} kg of CO₂</div>
+          <p className="text-white/70 text-xs mb-3">
+            On average, each tree absorbs ~20 kg of CO₂ during its lifetime, helping to restore our planet's natural balance.
+          </p>
+          <button className="w-full bg-white/30 hover:bg-white/40 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+            Plant Trees Now 🌲
+          </button>
         </div>
       </div>
 

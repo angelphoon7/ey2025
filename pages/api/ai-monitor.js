@@ -3,16 +3,33 @@
 
 export default function handler(req, res) {
   if (req.method === 'GET') {
-    // Return current AI monitoring data
+    // Build numeric, consistent mock metrics and compute overall efficiency from breakdown
+    const now = new Date();
+
+    // Create numeric breakdown components (each 0.0 - 1.0 range-ish)
+    const redundancyComponent = Math.random() * 0.3 + 0.10; // 0.10 - 0.40
+    const reuseComponent = Math.random() * 0.3 + 0.10;      // 0.10 - 0.40
+    const refinementComponent = Math.random() * 0.2 + 0.10; // 0.10 - 0.30
+    const excessComponent = Math.random() * 0.2 + 0.10;     // 0.10 - 0.30
+
+    // Sum the breakdown to form an overall score (cap at 1.0). These are positive contributions.
+    const rawOverall = redundancyComponent + reuseComponent + refinementComponent + excessComponent;
+    const overallScore = Math.min(1, rawOverall);
+
     const mockData = {
-      timestamp: new Date().toISOString(),
+      timestamp: now.toISOString(),
       metrics: {
+        // Basic counters
         totalTokens: Math.floor(Math.random() * 50000) + 10000,
         wastedTokens: Math.floor(Math.random() * 5000) + 500,
         repeatedPrompts: Math.floor(Math.random() * 50) + 10,
-        efficiency: Math.floor(Math.random() * 30) + 70,
+
+        // Percent-based user-facing efficiency (0-100)
+        efficiency: Math.round(overallScore * 100),
+
         costSavings: Math.floor(Math.random() * 500) + 100,
         carbonFootprint: Math.floor(Math.random() * 100) + 20,
+
         // Executive Summary metrics
         aiQueriesToday: Math.floor(Math.random() * 15000) + 3000,
         energySavedKWh: Math.floor(Math.random() * 400) + 50,
@@ -20,40 +37,47 @@ export default function handler(req, res) {
         co2PreventedKg: Math.floor(Math.random() * 220) + 40,
         computeScore: Math.floor(Math.random() * 100),
         computeScoreDelta: Math.floor(Math.random() * 20) - 5,
-        redundancyRate: (Math.random() * 0.5 + 0.05).toFixed(3), // 5-55% redundancy (focused on 0-35% range)
+
+        // Rates and ratios (numeric, not string)
+        redundancyRate: parseFloat((Math.random() * 0.5 + 0.05).toFixed(3)),
         similarPrompts: Math.floor(Math.random() * 25) + 5,
         totalPrompts: Math.floor(Math.random() * 100) + 50,
-        outputReuseRate: (Math.random() * 0.4 + 0.3).toFixed(3), // 30-70% reuse rate (focused on 40-70% range)
+        outputReuseRate: parseFloat((Math.random() * 0.4 + 0.3).toFixed(3)),
         usedOutputs: Math.floor(Math.random() * 30) + 10,
-        totalOutputs: Math.floor(Math.random() * 80) + 40,
-        avgRefinementLoops: (Math.random() * 3 + 1).toFixed(1), // 1-4 loops
+        totalOutputs: Math.floor(Math.random() * 120) + 40,
+        avgRefinementLoops: parseFloat((Math.random() * 3 + 1).toFixed(1)),
         completedTopics: Math.floor(Math.random() * 15) + 5,
         totalTopics: Math.floor(Math.random() * 20) + 10,
-        avgExcessRatio: (Math.random() * 1.5 + 0.8).toFixed(2), // 0.8-2.3x ratio
-        totalOutputs: Math.floor(Math.random() * 50) + 20,
+        avgExcessRatio: parseFloat((Math.random() * 1.5 + 0.8).toFixed(2)),
+
+        // Distributions
         excessDistribution: {
           efficient: Math.floor(Math.random() * 15) + 5,
           moderate: Math.floor(Math.random() * 10) + 3,
           waste: Math.floor(Math.random() * 8) + 1
         },
-        abandonmentRate: (Math.random() * 0.4 + 0.1).toFixed(3), // 10-50% abandonment rate
+
+        abandonmentRate: parseFloat((Math.random() * 0.4 + 0.1).toFixed(3)),
         abandonedOutputs: Math.floor(Math.random() * 20) + 5,
-        totalOutputs: Math.floor(Math.random() * 50) + 30,
         abandonmentDistribution: {
           efficient: Math.floor(Math.random() * 8) + 2,
           moderate: Math.floor(Math.random() * 6) + 1,
           waste: Math.floor(Math.random() * 4) + 0
         },
-        avgLatencyPerToken: (Math.random() * 80 + 20).toFixed(1), // 20-100 ms/token
+
+        avgLatencyPerToken: parseFloat((Math.random() * 80 + 20).toFixed(1)),
         totalInteractions: Math.floor(Math.random() * 100) + 50,
         latencyDistribution: {
           efficient: Math.floor(Math.random() * 30) + 10,
           moderate: Math.floor(Math.random() * 20) + 5,
           waste: Math.floor(Math.random() * 10) + 2
         },
-        overallEfficiencyScore: (Math.random() * 0.4 + 0.4).toFixed(3), // 40-80% efficiency score
-        efficiencyLevel: Math.random() > 0.5 ? 'High Efficiency' : Math.random() > 0.3 ? 'Moderate' : 'Wasteful'
+
+        // Numeric overall score and human label
+        overallEfficiencyScore: parseFloat(overallScore.toFixed(3)), // 0.0 - 1.0 numeric
+        efficiencyLevel: overallScore > 0.75 ? 'High Efficiency' : overallScore > 0.6 ? 'Moderate' : 'Wasteful'
       },
+
       patterns: [
         {
           id: 1,
@@ -107,7 +131,7 @@ export default function handler(req, res) {
         costReduction: 18.2
       },
       redundancyAnalysis: {
-        averageSimilarity: (Math.random() * 0.4 + 0.3).toFixed(3),
+        averageSimilarity: parseFloat((Math.random() * 0.4 + 0.3).toFixed(3)),
         topSimilarPrompts: [
           {
             id: 1,
@@ -132,13 +156,13 @@ export default function handler(req, res) {
           }
         ],
         timeWindowAnalysis: {
-          lastHour: (Math.random() * 0.4 + 0.1).toFixed(3), // 10-50% range
-          lastDay: (Math.random() * 0.3 + 0.05).toFixed(3),  // 5-35% range  
-          lastWeek: (Math.random() * 0.2 + 0.02).toFixed(3) // 2-22% range
+          lastHour: parseFloat((Math.random() * 0.4 + 0.1).toFixed(3)), // 10-50% range
+          lastDay: parseFloat((Math.random() * 0.3 + 0.05).toFixed(3)),  // 5-35% range  
+          lastWeek: parseFloat((Math.random() * 0.2 + 0.02).toFixed(3)) // 2-22% range
         }
       },
       outputReuseAnalysis: {
-        averageReuseRate: (Math.random() * 0.3 + 0.4).toFixed(3), // 40-70% range
+        averageReuseRate: parseFloat((Math.random() * 0.3 + 0.4).toFixed(3)), // 40-70% range
         topReusedOutputs: [
           {
             id: 1,
@@ -163,14 +187,14 @@ export default function handler(req, res) {
           }
         ],
         categoryBreakdown: {
-          weather: (Math.random() * 0.2 + 0.4).toFixed(3), // 40-60% range
-          education: (Math.random() * 0.3 + 0.5).toFixed(3), // 50-80% range
-          programming: (Math.random() * 0.2 + 0.6).toFixed(3), // 60-80% range
-          general: (Math.random() * 0.3 + 0.3).toFixed(3) // 30-60% range
+          weather: parseFloat((Math.random() * 0.2 + 0.4).toFixed(3)), // 40-60% range
+          education: parseFloat((Math.random() * 0.3 + 0.5).toFixed(3)), // 50-80% range
+          programming: parseFloat((Math.random() * 0.2 + 0.6).toFixed(3)), // 60-80% range
+          general: parseFloat((Math.random() * 0.3 + 0.3).toFixed(3)) // 30-60% range
         }
       },
       refinementAnalysis: {
-        averageLoops: (Math.random() * 3 + 1).toFixed(1), // 1-4 loops
+        averageLoops: parseFloat((Math.random() * 3 + 1).toFixed(1)), // 1-4 loops
         loopDistribution: {
           efficient: Math.floor(Math.random() * 8) + 2, // 2-10 topics
           moderate: Math.floor(Math.random() * 6) + 1,  // 1-7 topics
@@ -200,18 +224,18 @@ export default function handler(req, res) {
           }
         ],
         timeWindowAnalysis: {
-          lastHour: (Math.random() * 2 + 1).toFixed(1), // 1-3 loops
-          lastDay: (Math.random() * 2.5 + 1.5).toFixed(1), // 1.5-4 loops
-          lastWeek: (Math.random() * 3 + 2).toFixed(1) // 2-5 loops
+          lastHour: parseFloat((Math.random() * 2 + 1).toFixed(1)), // 1-3 loops
+          lastDay: parseFloat((Math.random() * 2.5 + 1.5).toFixed(1)), // 1.5-4 loops
+          lastWeek: parseFloat((Math.random() * 3 + 2).toFixed(1)) // 2-5 loops
         }
       },
       excessAnalysis: {
-        averageRatio: (Math.random() * 1.5 + 0.8).toFixed(2), // 0.8-2.3x ratio
+        averageRatio: parseFloat((Math.random() * 1.5 + 0.8).toFixed(2)), // 0.8-2.3x ratio
         categoryBreakdown: {
-          general: (Math.random() * 1.2 + 0.8).toFixed(2), // 0.8-2.0x
-          code: (Math.random() * 1.5 + 1.0).toFixed(2), // 1.0-2.5x
-          explanation: (Math.random() * 1.8 + 1.2).toFixed(2), // 1.2-3.0x
-          summary: (Math.random() * 0.8 + 0.6).toFixed(2) // 0.6-1.4x
+          general: parseFloat((Math.random() * 1.2 + 0.8).toFixed(2)), // 0.8-2.0x
+          code: parseFloat((Math.random() * 1.5 + 1.0).toFixed(2)), // 1.0-2.5x
+          explanation: parseFloat((Math.random() * 1.8 + 1.2).toFixed(2)), // 1.2-3.0x
+          summary: parseFloat((Math.random() * 0.8 + 0.6).toFixed(2)) // 0.6-1.4x
         },
         topExcessOutputs: [
           {
@@ -240,18 +264,18 @@ export default function handler(req, res) {
           }
         ],
         timeWindowAnalysis: {
-          lastHour: (Math.random() * 1.2 + 0.8).toFixed(2), // 0.8-2.0x
-          lastDay: (Math.random() * 1.5 + 1.0).toFixed(2), // 1.0-2.5x
-          lastWeek: (Math.random() * 1.8 + 1.2).toFixed(2) // 1.2-3.0x
+          lastHour: parseFloat((Math.random() * 1.2 + 0.8).toFixed(2)), // 0.8-2.0x
+          lastDay: parseFloat((Math.random() * 1.5 + 1.0).toFixed(2)), // 1.0-2.5x
+          lastWeek: parseFloat((Math.random() * 1.8 + 1.2).toFixed(2)) // 1.2-3.0x
         }
       },
       abandonmentAnalysis: {
-        averageRate: (Math.random() * 0.4 + 0.1).toFixed(3), // 10-50% abandonment rate
+        averageRate: parseFloat((Math.random() * 0.4 + 0.1).toFixed(3)), // 10-50% abandonment rate
         categoryBreakdown: {
-          general: (Math.random() * 0.3 + 0.1).toFixed(3), // 10-40%
-          programming: (Math.random() * 0.4 + 0.2).toFixed(3), // 20-60%
-          education: (Math.random() * 0.3 + 0.15).toFixed(3), // 15-45%
-          finance: (Math.random() * 0.5 + 0.3).toFixed(3) // 30-80%
+          general: parseFloat((Math.random() * 0.3 + 0.1).toFixed(3)), // 10-40%
+          programming: parseFloat((Math.random() * 0.4 + 0.2).toFixed(3)), // 20-60%
+          education: parseFloat((Math.random() * 0.3 + 0.15).toFixed(3)), // 15-45%
+          finance: parseFloat((Math.random() * 0.5 + 0.3).toFixed(3)) // 30-80%
         },
         topAbandonedOutputs: [
           {
@@ -277,19 +301,19 @@ export default function handler(req, res) {
           }
         ],
         timeWindowAnalysis: {
-          lastHour: (Math.random() * 0.3 + 0.1).toFixed(3), // 10-40%
-          lastDay: (Math.random() * 0.4 + 0.2).toFixed(3), // 20-60%
-          lastWeek: (Math.random() * 0.5 + 0.3).toFixed(3) // 30-80%
+          lastHour: parseFloat((Math.random() * 0.3 + 0.1).toFixed(3)), // 10-40%
+          lastDay: parseFloat((Math.random() * 0.4 + 0.2).toFixed(3)), // 20-60%
+          lastWeek: parseFloat((Math.random() * 0.5 + 0.3).toFixed(3)) // 30-80%
         }
       },
       latencyAnalysis: {
-        averageLatencyPerToken: (Math.random() * 80 + 20).toFixed(1), // 20-100 ms/token
+        averageLatencyPerToken: parseFloat((Math.random() * 80 + 20).toFixed(1)), // 20-100 ms/token
         typeBreakdown: {
-          general: (Math.random() * 40 + 20).toFixed(1), // 20-60 ms/token
-          code: (Math.random() * 60 + 30).toFixed(1), // 30-90 ms/token
-          explanation: (Math.random() * 80 + 40).toFixed(1), // 40-120 ms/token
-          list: (Math.random() * 30 + 15).toFixed(1), // 15-45 ms/token
-          summary: (Math.random() * 25 + 10).toFixed(1) // 10-35 ms/token
+          general: parseFloat((Math.random() * 40 + 20).toFixed(1)), // 20-60 ms/token
+          code: parseFloat((Math.random() * 60 + 30).toFixed(1)), // 30-90 ms/token
+          explanation: parseFloat((Math.random() * 80 + 40).toFixed(1)), // 40-120 ms/token
+          list: parseFloat((Math.random() * 30 + 15).toFixed(1)), // 15-45 ms/token
+          summary: parseFloat((Math.random() * 25 + 10).toFixed(1)) // 10-35 ms/token
         },
         topSlowInteractions: [
           {
@@ -328,31 +352,32 @@ export default function handler(req, res) {
           summary: 12.1
         },
         timeWindowAnalysis: {
-          lastHour: (Math.random() * 40 + 20).toFixed(1), // 20-60 ms/token
-          lastDay: (Math.random() * 50 + 30).toFixed(1), // 30-80 ms/token
-          lastWeek: (Math.random() * 60 + 40).toFixed(1) // 40-100 ms/token
+          lastHour: parseFloat((Math.random() * 40 + 20).toFixed(1)), // 20-60 ms/token
+          lastDay: parseFloat((Math.random() * 50 + 30).toFixed(1)), // 30-80 ms/token
+          lastWeek: parseFloat((Math.random() * 60 + 40).toFixed(1)) // 40-100 ms/token
         }
       },
       efficiencyAnalysis: {
-        overallScore: (Math.random() * 0.4 + 0.4).toFixed(3), // 40-80% efficiency score
+        // Use the numeric breakdown we created earlier (keeps components consistent)
+        overallScore: parseFloat(overallScore.toFixed(3)),
         scoreBreakdown: {
-          redundancy: (Math.random() * 0.3 + 0.1).toFixed(3), // 10-40%
-          reuse: (Math.random() * 0.3 + 0.1).toFixed(3), // 10-40%
-          refinement: (Math.random() * 0.2 + 0.1).toFixed(3), // 10-30%
-          excess: (Math.random() * 0.2 + 0.1).toFixed(3) // 10-30%
+          redundancy: parseFloat(redundancyComponent.toFixed(3)),
+          reuse: parseFloat(reuseComponent.toFixed(3)),
+          refinement: parseFloat(refinementComponent.toFixed(3)),
+          excess: parseFloat(excessComponent.toFixed(3))
         },
         efficiencyTrend: [
           { timestamp: Date.now() - 3600000, score: 0.65, level: 'Moderate' },
           { timestamp: Date.now() - 1800000, score: 0.72, level: 'Moderate' },
           { timestamp: Date.now() - 900000, score: 0.78, level: 'High Efficiency' },
           { timestamp: Date.now() - 300000, score: 0.75, level: 'High Efficiency' },
-          { timestamp: Date.now(), score: 0.73, level: 'Moderate' }
+          { timestamp: Date.now(), score: overallScore, level: overallScore > 0.75 ? 'High Efficiency' : overallScore > 0.6 ? 'Moderate' : 'Wasteful' }
         ],
         categoryPerformance: {
-          redundancy: (Math.random() * 0.3 + 0.1).toFixed(3),
-          reuse: (Math.random() * 0.3 + 0.1).toFixed(3),
-          refinement: (Math.random() * 0.2 + 0.1).toFixed(3),
-          excess: (Math.random() * 0.2 + 0.1).toFixed(3)
+          redundancy: parseFloat(redundancyComponent.toFixed(3)),
+          reuse: parseFloat(reuseComponent.toFixed(3)),
+          refinement: parseFloat(refinementComponent.toFixed(3)),
+          excess: parseFloat(excessComponent.toFixed(3))
         },
         recommendations: [
           {
