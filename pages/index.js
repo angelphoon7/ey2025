@@ -211,6 +211,23 @@ export default function Home() {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [impactEstimate, setImpactEstimate] = useState(null);
+
+  const estimateImpact = (text) => {
+    const approxTokens = Math.max(1, Math.ceil(text.trim().length / 4));
+    // Simple playful equivalence multiplier for demo purposes
+    const treesEquivalent = Math.max(1, Math.ceil(approxTokens / 2000));
+    const co2KgEquivalent = +(approxTokens * 0.0005).toFixed(3);
+    return { tokens: approxTokens, trees: treesEquivalent, co2Kg: co2KgEquivalent };
+  };
+
+  const attemptSend = () => {
+    if (!inputMessage.trim() || isLoading) return;
+    const estimation = estimateImpact(inputMessage);
+    setImpactEstimate(estimation);
+    setShowConfirm(true);
+  };
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
@@ -484,13 +501,13 @@ export default function Home() {
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && !isLoading && sendMessage()}
+                  onKeyPress={(e) => e.key === 'Enter' && !isLoading && attemptSend()}
                   placeholder={isLoading ? "AI is thinking..." : "Type a message..."}
                   disabled={isLoading}
                   className="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-white/40 text-sm focus:outline-none focus:border-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <button
-                  onClick={sendMessage}
+                  onClick={attemptSend}
                   disabled={!inputMessage.trim() || isLoading}
                   className="bg-blue-600 hover:bg-blue-700 disabled:bg-white/10 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2 transition-colors"
                 >
@@ -519,6 +536,61 @@ export default function Home() {
           </button>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      {showConfirm && impactEstimate && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowConfirm(false)} />
+          <div className="relative w-full max-w-md mx-4 bg-gradient-to-br from-purple-950 via-blue-950 to-indigo-950 border border-white/20 rounded-2xl shadow-2xl p-6">
+            <h4 className="text-lg font-semibold text-white mb-2">Proceed with this prompt?</h4>
+            <p className="text-white/80 text-sm mb-4">
+              Estimated usage: <span className="font-semibold text-white">{impactEstimate.tokens}</span> tokens.
+            </p>
+            <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-4">
+              <p className="text-sm text-white/90">
+                Environmental impact equivalent:{" "}
+                <span className="font-semibold text-white">
+                  {impactEstimate.trees} trees
+                </span>{" "}
+                or approximately{" "}
+                <span className="font-semibold text-white">{impactEstimate.co2Kg} kg CO₂</span>.
+              </p>
+              <p className="text-xs text-white/60 mt-2">
+                This is a playful estimate, not a precise measurement.
+              </p>
+            </div>
+            <p className="text-sm text-white mb-5">
+              “You will kill {impactEstimate.trees} trees with this prompt. Proceed?”
+            </p>
+            <div className="flex items-center justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowConfirm(false);
+                  const savedMsg = {
+                    id: Date.now() + 2,
+                    text: `Prompt cancelled. You avoided ~${impactEstimate.tokens} tokens (~${impactEstimate.co2Kg} kg CO₂, ~${impactEstimate.trees} trees equivalent). Consider refining your prompt to be shorter or more specific.`,
+                    sender: 'ai',
+                    timestamp: new Date()
+                  };
+                  setMessages(prev => [...prev, savedMsg]);
+                }}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors"
+              >
+                No, refine
+              </button>
+              <button
+                onClick={async () => {
+                  setShowConfirm(false);
+                  await sendMessage();
+                }}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+              >
+                Yes, send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
