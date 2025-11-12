@@ -187,17 +187,7 @@ export default function AwarenessDashboard() {
           ))}
         </div>
       </div>
-
-      {/* Learning Challenge */}
-      <div className="rounded-xl p-6 border border-white/20 bg-gradient-to-r from-purple-600 via-pink-600 to-fuchsia-600 text-white">
-        <h4 className="text-lg font-semibold mb-4">🧠 Learning Challenge</h4>
-        <p className="text-white/90 mb-4">Before using AI: Can you solve this problem yourself first?</p>
-        <div className="bg-white/10 rounded-lg p-4 mb-4">Today's Challenge: "{data.learningChallenge.text}"</div>
-        <div className="flex flex-col md:flex-row gap-3">
-          <button className="flex-1 bg-white/20 hover:bg-white/30 text-white font-medium py-2 px-4 rounded-lg">I'll Try First</button>
-          <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">Use AI Helper</button>
-        </div>
-      </div>
+      
     </div>
   );
 }
