@@ -213,6 +213,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [impactEstimate, setImpactEstimate] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   const estimateImpact = (text) => {
     const approxTokens = Math.max(1, Math.ceil(text.trim().length / 4));
@@ -286,6 +287,20 @@ export default function Home() {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleExportGRIReport = async () => {
+    if (isExporting) return;
+    setIsExporting(true);
+    try {
+      const { generateGRIReport } = await import('../utils/griReport');
+      await generateGRIReport();
+    } catch (error) {
+      console.error('Failed to export GRI report:', error);
+      alert('Unable to export the GRI report. Please try again or contact support.');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -386,10 +401,11 @@ export default function Home() {
             {/* Export PDF button */}
             <div className="flex justify-end">
               <button
-                onClick={() => window.print()}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors"
+                onClick={handleExportGRIReport}
+                disabled={isExporting}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Export PDF
+                {isExporting ? 'Exporting…' : 'Export GRI PDF'}
               </button>
             </div>
 
@@ -398,14 +414,6 @@ export default function Home() {
               <AwarenessDashboard />
             </div>
 
-            {/* Print styles: show only summary-report when printing */}
-            <style jsx global>{`
-              @media print {
-                body * { visibility: hidden; }
-                #summary-report, #summary-report * { visibility: visible; }
-                #summary-report { position: absolute; left: 0; top: 0; width: 100%; }
-              }
-            `}</style>
           </div>
         )}
 
