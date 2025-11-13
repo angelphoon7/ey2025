@@ -1,23 +1,56 @@
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
-const StatTile = ({ label, value, sublabel }) => (
-  <div>
-    <div className="text-5xl font-extrabold text-white">{value}</div>
-    <div className="text-white/70 mt-1">{label}</div>
-    {sublabel && <div className="text-white/40 text-sm">{sublabel}</div>}
+const integerFormatter = new Intl.NumberFormat('en-MY', {
+  maximumFractionDigits: 0
+});
+
+const decimalFormatter = new Intl.NumberFormat('en-MY', {
+  maximumFractionDigits: 1
+});
+
+const formatInteger = (value) => integerFormatter.format(Number(value ?? 0));
+const formatDecimal = (value) => decimalFormatter.format(Number(value ?? 0));
+
+const SectionCard = ({ title, description, actions, children }) => (
+  <section className="rounded-2xl border border-white/10 bg-white/[0.06] bg-gradient-to-br from-white/[0.08] via-white/[0.04] to-white/[0.02] p-6 shadow-[0_30px_60px_-40px_rgba(8,47,73,0.7)] backdrop-blur-md">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h3 className="text-lg font-semibold text-white">{title}</h3>
+        {description && <p className="mt-1 text-sm text-white/60">{description}</p>}
+      </div>
+      {actions && <div className="flex shrink-0 items-center gap-3">{actions}</div>}
+    </div>
+    <div className="mt-6">{children}</div>
+  </section>
+);
+
+const MetricTile = ({ label, value, helper }) => (
+  <div className="rounded-xl border border-white/10 bg-white/[0.08] p-4 transition hover:border-white/20 hover:bg-white/[0.12]">
+    <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/55">{label}</div>
+    <div className="mt-3 text-2xl font-semibold text-white">{value}</div>
+    {helper && <div className="mt-2 text-xs text-white/50">{helper}</div>}
   </div>
 );
 
-const MiniCard = ({ icon, value, label }) => (
-  <div className="bg-white/60/10 bg-white/10 rounded-xl p-6 text-center">
-    <div className="text-4xl mb-2">{icon}</div>
-    <div className="text-3xl font-extrabold text-white">{value}</div>
-    <div className="text-white/70 mt-1">{label}</div>
+const ProgressRow = ({ label, value }) => (
+  <div>
+    <div className="mb-2 flex items-center justify-between text-xs text-white/60">
+      <span>{label}</span>
+      <span className="font-semibold text-white">{value}%</span>
+    </div>
+    <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+      <div
+        className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-sky-400"
+        style={{ width: `${Math.min(value, 100)}%` }}
+      />
+    </div>
   </div>
 );
 
 export default function AwarenessDashboard() {
   const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadOnce = async () => {
@@ -26,168 +59,267 @@ export default function AwarenessDashboard() {
         const base = await baseRes.json();
         const susRes = await fetch('/api/sustainability');
         const sus = await susRes.json();
+
         const merged = {
           ...base.awareness,
           week: {
-            aiQueries: sus.aggregates?.aiQueries || base.awareness.week.aiQueries,
-            co2Kg: sus.aggregates?.co2Kg || base.awareness.week.co2Kg,
-            energyKWh: sus.aggregates?.energyKWh || base.awareness.week.energyKWh,
-            waterL: sus.aggregates?.waterL || base.awareness.week.waterL
+            aiQueries: sus.aggregates?.aiQueries ?? base.awareness.week.aiQueries,
+            co2Kg: sus.aggregates?.co2Kg ?? base.awareness.week.co2Kg,
+            energyKWh: sus.aggregates?.energyKWh ?? base.awareness.week.energyKWh,
+            waterL: sus.aggregates?.waterL ?? base.awareness.week.waterL
           }
         };
-        // Freeze values for this session
+
         const frozen = {
           ...merged,
           computeSmartScore: Math.round(merged.computeSmartScore),
           computeSmartPercentile: merged.computeSmartPercentile
         };
         setData(frozen);
-      } catch (e) {
-        console.error('Failed to load awareness metrics', e);
+      } catch (error) {
+        console.error('Failed to load awareness metrics', error);
+      } finally {
+        setIsLoading(false);
       }
     };
+
     loadOnce();
   }, []);
 
-  if (!data) {
+  if (isLoading || !data) {
     return (
-      <div className="flex items-center justify-center h-40">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400" />
+      <div className="flex h-40 items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-white/25 border-t-white/70" />
       </div>
     );
   }
 
-  // Calculate trees to plant based on CO2 generated
-  // Average tree absorbs ~21.77 kg CO2 per year or ~60 kg over its lifetime
-  // For offsetting purposes, we'll use ~20 kg CO2 per tree as a conservative estimate
-  const treesToPlant = Math.ceil(data.week.co2Kg / 20);
+  const week = data.week ?? {};
+  const equivalents = data.equivalents ?? {};
+  const batteries = data.batteries ?? [];
+  const leaderboard = data.departmentLeaderboard ?? [];
+  const thinkMode = data.thinkMode ?? {};
+  const learningChallenge = data.learningChallenge ?? {};
+
+  const weeklyCo2Kg = Number(week.co2Kg ?? 0);
+  const weeklyEnergyKWh = Number(week.energyKWh ?? 0);
+  const weeklyWaterL = Number(week.waterL ?? 0);
+  const weeklyQueries = Number(week.aiQueries ?? 0);
+
+  const savedCo2Kg = Number(thinkMode.savedCo2g ?? 0) / 1000;
+  const treesToPlant = Math.max(1, Math.ceil(weeklyCo2Kg / 20));
 
   return (
-    <div className="space-y-6">
-      {/* Efficiency Batteries */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-        <h4 className="text-lg font-semibold text-white mb-4">🔋 Efficiency Batteries</h4>
-        <div className="space-y-4">
-          {data.batteries?.map((b) => (
-            <div key={b.id}>
-              <div className="flex justify-between text-sm text-white/80 mb-1">
-                <span>{b.label}</span>
-                <span>{b.value}%</span>
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
-                <div
-                  className={`${b.value >= 85 ? 'bg-green-500' : b.value >= 70 ? 'bg-yellow-500' : 'bg-red-500'} h-3 rounded-full`}
-                  style={{ width: `${b.value}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Awareness Meter */}
-      <div className="rounded-xl p-6 border border-white/20 bg-gradient-to-r from-purple-600 via-pink-600 to-fuchsia-600 text-white">
-        <h3 className="text-xl font-semibold flex items-center space-x-2 mb-6">
-          <span>🧠</span>
-          <span>Your AI Awareness Meter</span>
-        </h3>
-        <p className="text-white/80 mb-6">This Week's Environmental Impact</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          <StatTile label="AI Queries" value={data.week.aiQueries} />
-          <StatTile label="CO  Generated" value={`${data.week.co2Kg} kg`} />
-          <StatTile label="Energy Used" value={`${data.week.energyKWh} kWh`} />
-          <StatTile label="Water Used" value={`${data.week.waterL}L`} />
-        </div>
-      </div>
-
-      {/* Carbon Offset with Tree Planting */}
-      <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 rounded-xl p-6 border border-white/20 text-white">
-        <h4 className="text-lg font-semibold flex items-center space-x-2 mb-2">
-          <span>🌳</span>
-          <span>Offset Your Carbon Footprint</span>
-        </h4>
-        <p className="text-white/90 mb-4">Plant trees to neutralize your AI-generated CO₂ emissions</p>
-        <div className="bg-white/20 rounded-lg p-4">
-          <div className="text-4xl font-extrabold mb-2">{treesToPlant} trees</div>
-          <div className="text-white/80 text-sm mb-3">needed to offset {data.week.co2Kg} kg of CO₂</div>
-          <p className="text-white/70 text-xs mb-3">
-            On average, each tree absorbs ~20 kg of CO₂ during its lifetime, helping to restore our planet's natural balance.
-          </p>
-          <button className="w-full bg-white/30 hover:bg-white/40 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-            Plant Trees Now 🌲
-          </button>
-        </div>
-      </div>
-
-      {/* Equivalents */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-        <h4 className="text-lg font-semibold text-white mb-4">💡 That's Equal To:</h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <MiniCard icon="🚗" value={`${data.equivalents.drivingKm} km`} label="Driving distance" />
-          <MiniCard icon="💧" value={data.equivalents.toiletFlushes} label="Toilet flushes" />
-          <MiniCard icon="💡" value={`${data.equivalents.roomLightingHrs} hrs`} label="Room lighting" />
-        </div>
-      </div>
-
-      {/* Compute Smart Score */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-        <h4 className="text-lg font-semibold text-white mb-3">🟢 Compute Smart Score</h4>
-        <div className="w-full bg-gray-700 rounded-full h-4 overflow-hidden">
-          <div
-            className="bg-green-500 h-4 rounded-full transition-all duration-700"
-            style={{ width: `${Math.min(data.computeSmartScore, 100)}%` }}
+    <div className="space-y-8">
+      <SectionCard
+        title="Executive Snapshot"
+        description="Week-to-date performance across AI sustainability and efficiency indicators."
+      >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+          <MetricTile
+            label="Compute Smart Score"
+            value={`${data.computeSmartScore}/100`}
+            helper={`Top ${data.computeSmartPercentile}% against global benchmark`}
+          />
+          <MetricTile
+            label="AI Interactions Tracked"
+            value={formatInteger(weeklyQueries)}
+            helper="Unique prompts monitored for responsible usage"
+          />
+          <MetricTile
+            label="Net CO₂ Emissions"
+            value={`${formatDecimal(weeklyCo2Kg)} kg`}
+            helper={`Neutralise with ${treesToPlant} tree${treesToPlant > 1 ? 's' : ''}`}
+          />
+          <MetricTile
+            label="Energy Consumption"
+            value={`${formatDecimal(weeklyEnergyKWh)} kWh`}
+            helper={`${formatDecimal(weeklyWaterL / 1000)} m³ estimated water footprint`}
           />
         </div>
-        <div className="flex justify-between text-white/80 mt-2">
-          <span>{data.computeSmartScore}/100</span>
-          <span>🎉 You're in the top {data.computeSmartPercentile}% of mindful AI users!</span>
+      </SectionCard>
+
+      <SectionCard
+        title="Sustainability Impact Profile"
+        description="Translate operational data into real-world equivalents to support GRI-aligned disclosures."
+      >
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <MetricTile
+            label="Commuting Distance"
+            value={`${formatInteger(equivalents.drivingKm ?? 0)} km`}
+            helper="Passenger vehicle emissions avoided"
+          />
+          <MetricTile
+            label="Water Footprint"
+            value={`${formatInteger(equivalents.toiletFlushes ?? 0)} uses`}
+            helper="Equivalent household water consumption"
+          />
+          <MetricTile
+            label="Lighting Duration"
+            value={`${formatInteger(equivalents.roomLightingHrs ?? 0)} hrs`}
+            helper="Domestic LED lighting comparison"
+          />
+          <MetricTile
+            label="Carbon Offset Advisory"
+            value={`${treesToPlant} trees`}
+            helper="Target to achieve net-zero for the period"
+          />
         </div>
-      </div>
+      </SectionCard>
 
-      {/* Think Mode Stats */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-        <h4 className="text-lg font-semibold text-white mb-4">🕒 Think Mode Stats</h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-white">
-          <div>
-            <div className="text-3xl font-bold">{data.thinkMode.pauses}</div>
-            <div className="text-white/70">Times you paused</div>
+      {batteries.length > 0 && (
+        <SectionCard
+          title="Operational Efficiency Programmes"
+          description="Programme health across prompt design, model right-sizing, data supply, and carbon governance."
+        >
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {batteries.map((battery) => (
+              <ProgressRow key={battery.id} label={battery.label} value={battery.value} />
+            ))}
           </div>
-          <div>
-            <div className="text-3xl font-bold">{data.thinkMode.avgThinkSeconds}s</div>
-            <div className="text-white/70">Avg think time</div>
-          </div>
-          <div>
-            <div className="text-3xl font-bold">{data.thinkMode.refinedQueries}</div>
-            <div className="text-white/70">Queries refined</div>
-          </div>
-        </div>
-        <div className="text-emerald-300 mt-3 text-sm">✨ You saved {data.thinkMode.savedCo2g}g CO  by refining queries!</div>
-      </div>
+        </SectionCard>
+      )}
 
-      {/* Achievements removed per request */}
-
-      {/* Department Leaderboard */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-        <h4 className="text-lg font-semibold text-white mb-4">👥 Department Leaderboard</h4>
-        <div className="space-y-3">
-          {data.departmentLeaderboard?.map((d) => (
-            <div key={d.id} className="bg-white/5 rounded-lg p-4 flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/80 text-sm">{d.id}</div>
-                <div>
-                  <div className="text-white font-medium">{d.name}</div>
-                  <div className="text-white/60 text-xs">{d.members} members</div>
+      <SectionCard
+        title="Carbon Offset Advisory"
+        description="Immediate actions to balance residual AI emissions with high-quality offsets."
+        actions={
+          <Link
+            href="/marketplace"
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-200/50 bg-emerald-400/20 px-4 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-400/35"
+          >
+            Explore Offset Marketplace
+          </Link>
+        }
+      >
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-emerald-300/30 bg-emerald-500/15 p-6">
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-50/80">
+              Recommended intervention
+            </div>
+            <div className="mt-2 text-3xl font-semibold text-white">{treesToPlant} trees</div>
+            <p className="mt-2 text-sm text-white/70">
+              Planting resilient native species offsets this week&apos;s emissions while supporting
+              biodiversity co-benefits.
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-4 text-xs text-emerald-50/80">
+              <div>
+                <div className="text-white/60">Carbon to neutralise</div>
+                <div className="mt-1 text-sm font-semibold text-white">
+                  {formatDecimal(weeklyCo2Kg)} kg
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="text-white font-semibold text-lg">{d.score}</div>
-                <div className={`${d.trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>{d.trend === 'up' ? '↗' : '↘'}</div>
+              <div>
+                <div className="text-white/60">Think Mode savings</div>
+                <div className="mt-1 text-sm font-semibold text-white">
+                  {formatDecimal(savedCo2Kg)} kg avoided
+                </div>
               </div>
             </div>
-          ))}
+          </div>
+
+          <div className="rounded-2xl border border-white/12 bg-white/[0.08] p-6">
+            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">
+              Governance guardrails
+            </div>
+            <ul className="mt-4 space-y-3 text-sm text-white/70">
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                Maintain current Think Mode cadence to preserve at least{' '}
+                {formatDecimal(savedCo2Kg)} kg CO₂ savings per reporting cycle.
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                Prioritise Malaysian projects with verifiable co-benefits to align with ESG regional
+                narratives.
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                Document offset rationale within sustainability reporting packs for audit readiness.
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
-      
+      </SectionCard>
+
+      <SectionCard
+        title="Behavioural Insights"
+        description="How teams are embracing mindful AI usage to minimise redundant compute."
+      >
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <MetricTile
+            label="Intentional Pauses"
+            value={formatInteger(thinkMode.pauses ?? 0)}
+            helper="Moments of reflection before triggering AI"
+          />
+          <MetricTile
+            label="Average Think Time"
+            value={`${formatInteger(thinkMode.avgThinkSeconds ?? 0)} s`}
+            helper="Helps reduce duplicate or noisy prompts"
+          />
+          <MetricTile
+            label="Queries Refined"
+            value={formatInteger(thinkMode.refinedQueries ?? 0)}
+            helper="Human-in-the-loop adjustments applied"
+          />
+          <MetricTile
+            label="CO₂ Saved via Think Mode"
+            value={`${formatDecimal(savedCo2Kg)} kg`}
+            helper="Cumulative emissions avoided through governance"
+          />
+        </div>
+      </SectionCard>
+
+      {leaderboard.length > 0 && (
+        <SectionCard
+          title="Department Performance Leaderboard"
+          description="Comparator view of adoption, stewardship, and efficiency gains."
+        >
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06]">
+            <table className="min-w-full divide-y divide-white/10 text-sm text-white/80">
+              <thead className="bg-white/[0.08] text-xs uppercase tracking-[0.16em] text-white/50">
+                <tr>
+                  <th scope="col" className="px-4 py-3 text-left">
+                    Department
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-left">
+                    Members
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-left">
+                    Score
+                  </th>
+                  <th scope="col" className="px-4 py-3 text-left">
+                    Trend
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/10">
+                {leaderboard.map((dept) => (
+                  <tr key={dept.id} className="transition hover:bg-white/[0.07]">
+                    <td className="px-4 py-4 font-medium text-white">{dept.name}</td>
+                    <td className="px-4 py-4">{formatInteger(dept.members)}</td>
+                    <td className="px-4 py-4 font-semibold text-white">
+                      {formatInteger(dept.score)}
+                    </td>
+                    <td className="px-4 py-4">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                          dept.trend === 'up'
+                            ? 'bg-emerald-400/20 text-emerald-200'
+                            : 'bg-rose-400/20 text-rose-200'
+                        }`}
+                      >
+                        {dept.trend === 'up' ? '▲ Improving' : '▼ Needs focus'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </SectionCard>
+      )}
+
     </div>
   );
 }

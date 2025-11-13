@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Geist, Geist_Mono } from "next/font/google";
 import AIAnalytics from '../components/AIAnalytics';
 // Removed interfaces: Redundancy, Utility, Refinement, Excess, Abandonment, Latency
@@ -349,6 +350,12 @@ export default function Home() {
               >
                 Summary
               </button>
+              <Link
+                href="/marketplace"
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-colors text-white/70 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/10"
+              >
+                Offset Marketplace
+              </Link>
               
               {/* Removed tabs: Redundancy, Utility, Refinement, Excess, Abandonment, Latency */}
               {/* Efficiency tab removed per request */}
