@@ -98,9 +98,9 @@ const buildGRIIndicators = (aggregates, aiMetrics) => {
     {
       code: 'GRI 305-5',
       indicator: 'Reduction in GHG emissions',
-      value: `${numberFormatter.format(aggregates.totalCarbonSavedTons)} tons CO₂ avoided`,
+      value: `${numberFormatter.format(aggregates.totalCarbonSavedTons)} tons carbon dioxide avoided`,
       commentary:
-        'Portfolio-wide deployment of targeted AI initiatives prevented CO₂ through clean energy shifts and waste mitigation.'
+        'Portfolio-wide deployment of targeted AI initiatives prevented carbon dioxide through clean energy shifts and waste mitigation.'
     },
     {
       code: 'GRI 306-2',
@@ -174,7 +174,7 @@ export async function generateGRIReport() {
   const aiMetrics = {
     energySavedKWh: parseNumber(aiMonitor.metrics?.energySavedKWh),
     waterSavedL: parseNumber(aiMonitor.metrics?.waterSavedL),
-    co2PreventedKg: parseNumber(aiMonitor.metrics?.co2PreventedKg),
+    carbonDioxidePreventedKg: parseNumber(aiMonitor.metrics?.co2PreventedKg),
     costSavingsUSD: parseNumber(aiMonitor.metrics?.costSavings),
     efficiencyScore: parseNumber(aiMonitor.metrics?.efficiency),
     programCount: rows.length || parseNumber(aiMonitor.awareness?.week?.aiQueries)
@@ -190,14 +190,26 @@ export async function generateGRIReport() {
   });
 
   const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
   const marginX = 48;
+  const marginBottom = 72;
   let cursorY = 72;
+
+  // Helper function to check if we need a new page
+  const checkPageBreak = (requiredHeight) => {
+    if (cursorY + requiredHeight > pageHeight - marginBottom) {
+      doc.addPage();
+      cursorY = 72;
+      return true;
+    }
+    return false;
+  };
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(24);
   doc.text('AI Sustainability GRI-Referenced Report', marginX, cursorY);
 
-  doc.setFontSize(12);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   cursorY += 24;
   doc.text(`Reporting date: ${now.toLocaleDateString()}`, marginX, cursorY);
@@ -210,6 +222,11 @@ export async function generateGRIReport() {
   );
 
   cursorY += 28;
+  
+  // Check if Executive Highlights section fits
+  const highlightsSectionHeight = 34 + 36 + (narrativeHighlights.length * 18) + 12;
+  checkPageBreak(highlightsSectionHeight);
+  
   doc.setFillColor(29, 78, 216);
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
@@ -223,12 +240,21 @@ export async function generateGRIReport() {
   cursorY += 36;
 
   narrativeHighlights.forEach((line) => {
+    // Check if this line fits on current page
+    if (cursorY + 18 > pageHeight - marginBottom) {
+      doc.addPage();
+      cursorY = 72;
+    }
     doc.circle(marginX + 6, cursorY - 3, 2, 'F');
-    doc.text(line, marginX + 16, cursorY, { maxWidth: pageWidth - marginX * 2 - 16 });
-    cursorY += 18;
+    const textLines = doc.splitTextToSize(line, pageWidth - marginX * 2 - 16);
+    doc.text(textLines, marginX + 16, cursorY);
+    cursorY += textLines.length * 18;
   });
 
   cursorY += 12;
+  // Check if GRI Indicator Mapping section fits
+  checkPageBreak(40);
+  
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
   doc.setTextColor(33, 33, 33);
@@ -263,10 +289,8 @@ export async function generateGRIReport() {
 
   cursorY = doc.lastAutoTable.finalY + 24;
 
-  if (cursorY > doc.internal.pageSize.getHeight() - 144) {
-    doc.addPage();
-    cursorY = 72;
-  }
+  // Check if next section fits
+  checkPageBreak(40);
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
@@ -276,7 +300,7 @@ export async function generateGRIReport() {
     item.area,
     `${numberFormatter.format(item.impactScore)} / 10`,
     `${percentFrom100Formatter.format(item.efficiencyImprovement)}% efficiency gain`,
-    `${numberFormatter.format(item.carbonReduction)} tons CO₂e avoided`,
+    `${numberFormatter.format(item.carbonReduction)} tons carbon dioxide avoided`,
     `${percentFrom100Formatter.format(item.adoptionRate)}% adoption`
   ]);
 
@@ -313,10 +337,8 @@ export async function generateGRIReport() {
 
   cursorY = doc.lastAutoTable.finalY + 24;
 
-  if (cursorY > doc.internal.pageSize.getHeight() - 144) {
-    doc.addPage();
-    cursorY = 72;
-  }
+  // Check if Portfolio Outcomes section fits
+  checkPageBreak(40);
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(13);
@@ -329,7 +351,7 @@ export async function generateGRIReport() {
       value: currencyFormatter.format(aggregates.totalCostReductionUSD * 1_000_000)
     },
     {
-      label: 'Total CO₂e mitigated',
+      label: 'Total Carbon dioxide mitigated',
       value: `${numberFormatter.format(aggregates.totalCarbonSavedTons)} tons`
     },
     {
@@ -351,6 +373,11 @@ export async function generateGRIReport() {
   ];
 
   summaryMetrics.forEach((metric) => {
+    // Check if metric fits on current page
+    if (cursorY + 16 > pageHeight - marginBottom) {
+      doc.addPage();
+      cursorY = 72;
+    }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.text(metric.label, marginX, cursorY);
@@ -360,24 +387,27 @@ export async function generateGRIReport() {
   });
 
   cursorY += 20;
+  
+  // Check if footer fits
+  if (cursorY + 50 > pageHeight - marginBottom) {
+    doc.addPage();
+    cursorY = 72;
+  }
+  
   doc.setDrawColor(200);
   doc.line(marginX, cursorY, pageWidth - marginX, cursorY);
   cursorY += 16;
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(9);
-  doc.text(
-    'Methodology: Indicators derived from internal AI monitoring, supported by the AI Sustainability Dataset and aligned to the GRI Standards (2021).',
-    marginX,
-    cursorY,
-    { maxWidth: pageWidth - marginX * 2 }
-  );
-  cursorY += 14;
-  doc.text(
-    'Forward-looking statements are subject to model performance, governance maturity, and regional regulatory changes.',
-    marginX,
-    cursorY,
-    { maxWidth: pageWidth - marginX * 2 }
-  );
+  
+  const methodologyText = 'Methodology: Indicators derived from internal AI monitoring, supported by the AI Sustainability Dataset and aligned to the GRI Standards (2021).';
+  const methodologyLines = doc.splitTextToSize(methodologyText, pageWidth - marginX * 2);
+  doc.text(methodologyLines, marginX, cursorY);
+  cursorY += methodologyLines.length * 12;
+  
+  const forwardLookingText = 'Forward-looking statements are subject to model performance, governance maturity, and regional regulatory changes.';
+  const forwardLookingLines = doc.splitTextToSize(forwardLookingText, pageWidth - marginX * 2);
+  doc.text(forwardLookingLines, marginX, cursorY);
 
   const filename = `AI_Sustainability_GRI_Report_${now
     .toISOString()
