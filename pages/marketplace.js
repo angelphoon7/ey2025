@@ -283,7 +283,7 @@ const CarbonOffsetMarketplace = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none"
+                className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none text-black"
               >
                 <option value="featured">Featured</option>
                 <option value="price-low">Price: Low to High</option>
@@ -342,19 +342,19 @@ const CarbonOffsetMarketplace = () => {
                       <dl className="grid grid-cols-2 gap-4 mb-4 text-sm">
                         <div>
                           <dt className="text-xs text-gray-600 mb-1">Provider</dt>
-                          <dd className="font-semibold">{project.provider}</dd>
+                          <dd className="font-semibold text-black">{project.provider}</dd>
                         </div>
                         <div>
                           <dt className="text-xs text-gray-600 mb-1">Carbon Removed</dt>
-                          <dd className="font-semibold">{project.carbonRemoved}</dd>
+                          <dd className="font-semibold text-black">{project.carbonRemoved}</dd>
                         </div>
                         <div>
                           <dt className="text-xs text-gray-600 mb-1">Timeline</dt>
-                          <dd className="font-semibold">{project.timeline}</dd>
+                          <dd className="font-semibold text-black">{project.timeline}</dd>
                         </div>
                         <div>
                           <dt className="text-xs text-gray-600 mb-1">Min. Purchase</dt>
-                          <dd className="font-semibold">{project.minPurchase} tons</dd>
+                          <dd className="font-semibold text-black">{project.minPurchase} tons</dd>
                         </div>
                       </dl>
 
@@ -455,7 +455,7 @@ const CarbonOffsetMarketplace = () => {
 
           <aside className="lg:col-span-1">
             <div className="bg-white rounded-2xl p-6 shadow-xl sticky top-8">
-              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2 text-black">
                 <ShoppingCart className="w-6 h-6 text-green-600" />
                 Your Cart
               </h3>
@@ -473,7 +473,7 @@ const CarbonOffsetMarketplace = () => {
                       <div key={item.id} className="border-2 border-gray-200 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex-1">
-                            <div className="font-semibold text-sm">{item.name}</div>
+                            <div className="font-semibold text-sm text-black">{item.name}</div>
                             <div className="text-xs text-gray-600">{item.tons} tons CO₂</div>
                           </div>
                           <button
@@ -494,11 +494,11 @@ const CarbonOffsetMarketplace = () => {
 
                   <div className="border-t-2 border-gray-200 pt-4 mb-6">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-700">Total Carbon Offset:</span>
-                      <span className="font-bold">{totalCarbon.toFixed(2)} tons</span>
+                      <span className="text-black">Total Carbon Offset:</span>
+                      <span className="font-bold text-black">{totalCarbon.toFixed(2)} tons</span>
                     </div>
                     <div className="flex justify-between items-center mb-4">
-                      <span className="text-gray-700">Total Cost:</span>
+                      <span className="text-black">Total Cost:</span>
                       <span className="text-2xl font-bold text-green-600">
                         RM {totalCost.toFixed(2)}
                       </span>
