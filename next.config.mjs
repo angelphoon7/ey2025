@@ -19,9 +19,13 @@ const nextConfig = {
   outputFileTracingRoot: __dirname,
   // Disable webpack cache to reduce disk usage
   webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.cache = false;
-    }
+    // Disable cache completely to save memory and disk
+    config.cache = false;
+    // Reduce memory usage during build
+    config.optimization = {
+      ...config.optimization,
+      minimize: true,
+    };
     return config;
   },
   // Disable ESLint during builds to reduce memory usage

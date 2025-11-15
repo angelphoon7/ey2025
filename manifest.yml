@@ -1,15 +1,15 @@
 ---
 applications:
   - name: my-next-app
-    memory: 1G
+    memory: 2G
     disk_quota: 2G
     instances: 1
     buildpacks:
       - nodejs_buildpack
-    command: bash -lc 'npm run build && npm start'
+    command: bash -lc 'NODE_OPTIONS="--max-old-space-size=1536" npm run build && npm start'
     path: .
     routes:
       - route: whasap.cfapps.us10-001.hana.ondemand.com
     env:
       NODE_ENV: production
-      NODE_OPTIONS: --max-old-space-size=1024
+      NODE_OPTIONS: --max-old-space-size=1536
