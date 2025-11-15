@@ -10,3 +10,6 @@ applications:
     path: .
     routes:
       - route: whasap.cfapps.us10-001.hana.ondemand.com
+    env:
+      NODE_ENV: production
+      NODE_OPTIONS: --max-old-space-size=1024
