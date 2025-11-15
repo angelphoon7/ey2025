@@ -279,7 +279,7 @@ const RealTimeAnalysis = () => {
                   </span>
                 </div>
                 <div className="text-sm text-white/80 mb-2">
-                  "{entry.prompt.substring(0, 100)}{entry.prompt.length > 100 ? '...' : ''}"
+                  &quot;{entry.prompt.substring(0, 100)}{entry.prompt.length > 100 ? '...' : ''}&quot;
                 </div>
                 {entry.analysis.overall_efficiency !== undefined && (
                   <div className="flex items-center space-x-4 text-xs">

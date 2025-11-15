@@ -495,7 +495,7 @@ export default function Home() {
             <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-transparent to-black/20">
               {messages.length === 0 && (
                 <div className="text-center text-white/60 text-sm py-8">
-                  👋 Hi! I'm here to help you with AI efficiency tips and sustainability information.
+                  👋 Hi! I&apos;m here to help you with AI efficiency tips and sustainability information.
                 </div>
               )}
               {messages.map((msg) => (

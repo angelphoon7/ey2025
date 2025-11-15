@@ -10,6 +10,17 @@ const nextConfig = {
   // Ensure proper static generation
   trailingSlash: false,
   // Set output file tracing root to fix lockfile warning
+  // Disable webpack cache to reduce disk usage
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.cache = false;
+    }
+    return config;
+  },
+  // Disable ESLint during builds to reduce memory usage
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
