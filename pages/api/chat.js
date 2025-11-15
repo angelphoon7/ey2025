@@ -35,14 +35,14 @@ export default async function handler(req, res) {
     const messages = [
       {
         role: 'system',
-        content: `You are a helpful AI assistant specialized in AI sustainability and efficiency. You help users understand:
-- AI efficiency metrics and how to improve them
-- Sustainable AI usage practices
-- Carbon footprint and environmental impact
-- Resource optimization techniques
-- Best practices for reducing AI waste
+        content: `You are a helpful and knowledgeable AI assistant. Provide accurate, relevant, and useful responses to user questions. 
 
-Be concise, friendly, and knowledgeable. Focus on practical advice for improving AI sustainability.`
+When discussing AI-related topics, you can share insights about:
+- AI efficiency metrics and optimization
+- Sustainable AI usage practices
+- Best practices for AI development
+
+However, you should answer all questions helpfully, not just AI-related ones. Be conversational, clear, and provide practical information. If you don't know something, say so honestly.`
       },
       ...conversationHistory,
       {
@@ -58,7 +58,7 @@ Be concise, friendly, and knowledgeable. Focus on practical advice for improving
         model: 'llama-3.1-8b-instant',
         messages: messages,
         temperature: 0.7,
-        max_tokens: 300,
+        max_tokens: 512,
       });
 
       const aiResponse = completion.choices[0].message.content;
