@@ -1,7 +1,8 @@
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: 'https://api.groq.com/openai/v1',
 });
 
 export default async function handler(req, res) {
@@ -88,7 +89,7 @@ export default async function handler(req, res) {
     }
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
+      model: "llama-3.1-8b-instant",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
@@ -104,7 +105,7 @@ export default async function handler(req, res) {
       res.status(200).json({
         success: true,
         analysis: parsedAnalysis,
-        model: "gpt-3.5-turbo",
+        model: "llama-3.1-8b-instant",
         usage: completion.usage
       });
     } catch (parseError) {
@@ -112,13 +113,13 @@ export default async function handler(req, res) {
       res.status(200).json({
         success: true,
         analysis: { raw_analysis: analysis },
-        model: "gpt-3.5-turbo",
+        model: "llama-3.1-8b-instant",
         usage: completion.usage
       });
     }
 
   } catch (error) {
-    console.error('OpenAI API error:', error);
+    console.error('Groq API error:', error);
     res.status(500).json({ 
       error: 'Failed to analyze prompt',
       details: error.message 

@@ -263,6 +263,18 @@ export default function Home() {
         }),
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = 'Failed to get response';
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+
       const data = await response.json();
       
       if (data.success && data.response) {
@@ -280,7 +292,7 @@ export default function Home() {
       console.error('Chat error:', error);
       const errorMessage = {
         id: Date.now() + 1,
-        text: 'Sorry, I encountered an error. Please try again.',
+        text: error.message || 'Sorry, I encountered an error. Please try again.',
         sender: 'ai',
         timestamp: new Date(),
         isError: true
